@@ -1,0 +1,38 @@
+
+PUT /product
+{
+  "mappings": {
+    "properties": {
+      "string_facet": {
+        "type": "nested",
+        "properties": {
+          "facet_name": { "type": "keyword"},
+          "facet_value": { "type": "keyword"}
+        }
+      }
+    }
+  }
+}
+
+
+POST /_bulk
+{ "index": { "_index": "product", "_id": 1} }
+{"name":"Lila Macejkovic","cats":["A","B"],"price": "21.3","string_facet":[{"facet_name":"brand","facet_value":"ubest"},{"facet_name":"color","facet_value":"green"},{"facet_name":"department","facet_value":"soccer"}]}
+{ "index": { "_index": "product", "_id": 2} }
+{"name":"Soledad O'Conner","cats":["B","C"],"price": "30","string_facet":[{"facet_name":"brand","facet_value":"ubest"},{"facet_name":"color","facet_value":"green"},{"facet_name":"department","facet_value":"adventure"}]}
+{ "index": { "_index": "product", "_id": 3} }
+{"name":"Cherryl Streich","cats":["C","D"],"price": "201","string_facet":[{"facet_name":"brand","facet_value":"beert"},{"facet_name":"color","facet_value":"white"},{"facet_name":"department","facet_value":"soccer"}]}
+{ "index": { "_index": "product", "_id": 4} }
+{"name":"Celinda Price","cats":["D","A"],"price": "707","string_facet":[{"facet_name":"brand","facet_value":"ubest"},{"facet_name":"color","facet_value":"yellow"},{"facet_name":"department","facet_value":"adventure"}]}
+{ "index": { "_index": "product", "_id": 5} }
+{"name":"Elvin Thompson","cats":["A","B"],"price": "1", "string_facet":[{"facet_name":"brand","facet_value":"hokey"},{"facet_name":"color","facet_value":"yellow"},{"facet_name":"department","facet_value":"adventure"}]}
+{ "index": { "_index": "product", "_id": 6} }
+{"name":"Jenni MacGyver","cats":["C","A"],"price": "400.2","string_facet":[{"facet_name":"brand","facet_value":"beert"},{"facet_name":"color","facet_value":"black"},{"facet_name":"department","facet_value":"casual"}]}
+{ "index": { "_index": "product", "_id": 7} }
+{"name":"Erwin Nader","cats":["E","B"],"price": "10002","string_facet":[{"facet_name":"brand","facet_value":"hokey"},{"facet_name":"color","facet_value":"white"},{"facet_name":"department","facet_value":"adventure"}]}
+{ "index": { "_index": "product", "_id": 8} }
+{"name":"Coleman Sanford","cats":["C"],"price": "250", "string_facet":[{"facet_name":"color","facet_value":"black"},{"facet_name":"department","facet_value":"casual"}]}
+{ "index": { "_index": "product", "_id": 9} }
+{"name":"Everett Metz","cats":["D"],"price": "120","string_facet":[{"facet_name":"brand","facet_value":"hokey"},{"facet_name":"color","facet_value":"white"},{"facet_name":"department","facet_value":"soccer"}]}
+{ "index": { "_index": "product", "_id": 10} }
+{"name":"Leonida Oberbrunner","cats":["E"],"price": "500","string_facet":[{"facet_name":"brand","facet_value":"amazon"},{"facet_name":"color","facet_value":"grey"},{"facet_name":"department","facet_value":"Admin"}]}

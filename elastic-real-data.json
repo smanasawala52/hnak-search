@@ -1,0 +1,2357 @@
+MAPPING
+=======
+PUT /hnak_product
+{
+  "mappings": {
+    "properties": {
+      "suggest": {
+        "type": "completion"
+      },
+      "name": {
+        "type": "text",
+        "fields": {
+          "keyword": {
+            "type": "keyword",
+            "ignore_above": 256
+          }
+        }
+      },
+      "mappings": {
+        "type": "nested",
+        "properties": {
+          "attributeValueCode": {
+            "type": "keyword"
+          },
+          "attibuteValueName": {
+            "type": "text",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          },
+          "attributeCode": {
+            "type": "keyword"
+          },
+          "attributeName": {
+            "type": "text",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          },
+          "catCode": {
+            "type": "keyword"
+          },
+          "catName": {
+            "type": "text",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+CAT SELECTION
+=========
+POST /hnak_product/_search
+{
+  "aggs": {
+    "aggs_all_filters": {
+      "nested": {
+        "path": "mappings"
+      },
+      "aggs": {
+        "cats": {
+          "filter": {
+            "term": {
+              "mappings.catCode": "watches”
+            }
+          },
+          "aggs": {
+            "attrs": {
+              "terms": {
+                "field": "mappings.attributeCode",
+                "size": 10
+              },
+              "aggs": {
+                "attrVal": {
+                  "terms": {
+                    "field": "mappings.attributeValueCode",
+                    "size": 10
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+POST /hnak_product/_search
+{
+  "aggs": {
+    "aggs_all_filters": {
+      "filter": {
+        "bool": {
+          "filter": [
+            {
+              "nested": {
+                "path": "mappings",
+                "query": {
+                  "bool": {
+                    "should": [
+                      {
+                        "term": {
+                          "mappings.catCode": "fashion"
+                        }
+                      },
+                      {
+                        "term": {
+                          "mappings.catCode": "watches"
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            },
+            {
+              "nested": {
+                "path": "mappings",
+                "query": {
+                  "bool": {
+                    "filter": [
+                      {
+                        "term": {
+                          "mappings.attributeCode": "color"
+                        }
+                      },
+                      {
+                        "bool": {
+                          "should": [
+                            {
+                              "term": {
+                                "mappings.attributeValueCode": "red"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            },
+            {
+              "nested": {
+                "path": "mappings",
+                "query": {
+                  "bool": {
+                    "filter": [
+                      {
+                        "term": {
+                          "mappings.attributeCode": "size"
+                        }
+                      }
+                      ,
+                      {
+                        "bool": {
+                          "should": [
+                            
+                            {
+                              "term": {
+                                "mappings.attributeValueCode": "small"
+                              }
+                            }
+                          ]
+                        }
+                        
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "aggs": {
+        "nest1": {
+          "nested": {
+            "path": "mappings"
+          },
+          "aggs": {
+            "cats": {
+              "filter": {
+                "term": {
+                  "mappings.catCode": "fashion"
+                }
+              },
+              "aggs": {
+                "attr": {
+                  "terms": {
+                    "field": "mappings.attributeCode",
+                    "size": 10
+                  },
+                  "aggs": {
+                    "attr_V": {
+                      "terms": {
+                        "field": "mappings.attributeValueCode",
+                        "size": 10
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+raincoat - color
+topwear - size
+bottomwear - length
+
+mobile-battery : power
+mobile-accessories - color
+smart-tv : os
+lcd : screen size
+
+PUT hnak_product/_doc/1
+{
+  "name": "prod1",
+  "legacyId": "5b3e30149bd1d9c23d21afa1",
+  "parent": 0,
+  "id": "5b3e30149bd1d9c23d21afa1",
+  "code": "5b3e30149bd1d9c23d21afa1",
+  "imagePath": "https://images.globalindustrial.com/images/275x275/PG90441.jpg",
+  "url": "/product/prod1",
+  "desc": """{"en-SA":"Product 1","ar-SA":"دائري"}""",
+  "price": 99.99,
+  "stock": 0,
+  "available": false,
+  "mappings": [
+    {
+      "attributeCode": "size",
+      "catCode": "topwear",
+      "attributeValueName": """{"en-SA":"Round","ar-SA":"دائري"}""",
+      "attributeName": """{"en-SA":"Dial Shape","ar-SA":"شكل المينا"}""",
+      "attributeValueCode": "small"
+    },
+    {
+      "attributeCode": "color",
+      "catCode": "raincoat",
+      "attributeValueCode": "brown"
+    },
+    {
+      "attributeCode": "dial",
+      "catCode": "watches",
+      "attributeValueCode": "round"
+    },
+    {
+        "attributeCode": "movement",
+        "catCode": "watches",
+        "attributeValueCode": "analog"
+      },
+      {
+          "attributeCode": "length",
+          "catCode": "bottomwear",
+          "attributeValueCode": "44"
+      }
+      {
+          "attributeCode": "power",
+          "catCode": "mobile-battery",
+          "attributeValueCode": "5000 mah"
+      },
+      {
+          "attributeCode": "color",
+          "catCode": "mobile-accessories",
+          "attributeValueCode": "white"
+      },
+      {
+          "attributeCode": "os",
+          "catCode": "smart-tv",
+          "attributeValueCode": "andriod"
+      },
+      {
+          "attributeCode": "screen-size",
+          "catCode": "lcd",
+          "attributeValueCode": "44 inches"
+      }
+  ]
+}
+
+PUT hnak_product/_doc/2
+{
+  "name": "prod2",
+  "legacyId": "5b3e30149bd1d9c23d21afa2",
+  "parent": 0,
+  "id": "5b3e30149bd1d9c23d21afa2",
+  "code": "5b3e30149bd1d9c23d21afa2",
+  "imagePath": "https://images.globalindustrial.com/images/275x275/PG110058.jpg",
+  "url": "/product/prod2",
+  "desc": """{"en-SA":"Product 2","ar-SA":"دائري"}""",
+  "price": 200.99,
+  "stock": 0,
+  "available": false,
+  "mappings": [
+    {
+      "attributeCode": "size",
+      "catCode": "fashion",
+      "attributeValueName": """{"en-SA":"Round","ar-SA":"دائري"}""",
+      "attributeName": """{"en-SA":"Dial Shape","ar-SA":"شكل المينا"}""",
+      "attributeValueCode": "medium"
+    },
+    {
+      "attributeCode": "color",
+      "catCode": "fashion",
+      "attributeValueCode": "brown"
+    },
+    {
+      "attributeCode": "dial",
+      "catCode": "watches",
+      "attributeValueCode": "round"
+    },
+    {
+      "attributeCode": "movement",
+      "catCode": "watches",
+      "attributeValueCode": "analog"
+    },
+    {
+        "attributeCode": "size",
+        "catCode": "topwear",
+        "attributeValueName": """{"en-SA":"Round","ar-SA":"دائري"}""",
+        "attributeName": """{"en-SA":"Dial Shape","ar-SA":"شكل المينا"}""",
+        "attributeValueCode": "medium"
+      },
+      {
+        "attributeCode": "color",
+        "catCode": "raincoat",
+        "attributeValueCode": "brown"
+      },
+       {
+            "attributeCode": "length",
+            "catCode": "bottomwear",
+            "attributeValueCode": "46"
+        }
+        {
+            "attributeCode": "power",
+            "catCode": "mobile-battery",
+            "attributeValueCode": "4000 mah"
+        },
+        {
+            "attributeCode": "color",
+            "catCode": "mobile-accessories",
+            "attributeValueCode": "blue"
+        },
+        {
+            "attributeCode": "os",
+            "catCode": "smart-tv",
+            "attributeValueCode": "symbian"
+        },
+        {
+            "attributeCode": "screen-size",
+            "catCode": "lcd",
+            "attributeValueCode": "55 inches"
+        }
+  ]
+}
+
+PUT hnak_product/_doc/3
+{
+  "name": "prod3",
+  "legacyId": "5b3e30149bd1d9c23d21afa3",
+  "parent": 0,
+  "id": "5b3e30149bd1d9c23d21afa3",
+  "code": "5b3e30149bd1d9c23d21afa3",
+  "imagePath": "https://images.globalindustrial.com/images/275x275/PG114734.jpg",
+  "url": "/product/prod3",
+  "desc": """{"en-SA":"Product 3","ar-SA":"دائري"}""",
+  "price": 300.99,
+  "stock": 0,
+  "available": false,
+  "mappings": [
+    {
+      "attributeCode": "size",
+      "catCode": "fashion",
+      "attributeValueName": """{"en-SA":"Round","ar-SA":"دائري"}""",
+      "attributeName": """{"en-SA":"Dial Shape","ar-SA":"شكل المينا"}""",
+      "attributeValueCode": "small"
+    },
+    {
+      "attributeCode": "color",
+      "catCode": "fashion",
+      "attributeValueCode": "red"
+    },
+    {
+      "attributeCode": "dial",
+      "catCode": "watches",
+      "attributeValueCode": "round"
+    },
+    {
+      "attributeCode": "movement",
+      "catCode": "watches",
+      "attributeValueCode": "analog"
+    },
+    {
+        "attributeCode": "size",
+        "catCode": "topwear",
+        "attributeValueName": """{"en-SA":"Round","ar-SA":"دائري"}""",
+        "attributeName": """{"en-SA":"Dial Shape","ar-SA":"شكل المينا"}""",
+        "attributeValueCode": "small"
+      },
+      {
+        "attributeCode": "color",
+        "catCode": "raincoat",
+        "attributeValueCode": "red"
+      },
+       {
+            "attributeCode": "length",
+            "catCode": "bottomwear",
+            "attributeValueCode": "44"
+        }
+        {
+            "attributeCode": "power",
+            "catCode": "mobile-battery",
+            "attributeValueCode": "4000 mah"
+        },
+        {
+            "attributeCode": "color",
+            "catCode": "mobile-accessories",
+            "attributeValueCode": "white"
+        },
+        {
+            "attributeCode": "os",
+            "catCode": "smart-tv",
+            "attributeValueCode": "symbian"
+        },
+        {
+            "attributeCode": "screen-size",
+            "catCode": "lcd",
+            "attributeValueCode": "44 inches"
+        }
+  ]
+}
+
+PUT hnak_product/_doc/4
+{
+  "name": "prod4",
+  "legacyId": "5b3e30149bd1d9c23d21afa4",
+  "parent": 0,
+  "id": "5b3e30149bd1d9c23d21afa4",
+  "code": "5b3e30149bd1d9c23d21afa4",
+  "imagePath": "https://images.globalindustrial.com/images/275x275/PG90447.jpg",
+  "url": "/product/prod4",
+  "desc": """{"en-SA":"Product 4","ar-SA":"دائري"}""",
+  "price": 400.28,
+  "stock": 0,
+  "available": false,
+  "mappings": [
+    {
+      "attributeCode": "size",
+      "catCode": "fashion",
+      "attributeValueName": """{"en-SA":"Round","ar-SA":"دائري"}""",
+      "attributeName": """{"en-SA":"Dial Shape","ar-SA":"شكل المينا"}""",
+      "attributeValueCode": "medium"
+    },
+    {
+      "attributeCode": "color",
+      "catCode": "fashion",
+      "attributeValueCode": "red"
+    },
+    {
+      "attributeCode": "dial",
+      "catCode": "watches",
+      "attributeValueCode": "round"
+    },
+    {
+      "attributeCode": "movement",
+      "catCode": "watches",
+      "attributeValueCode": "analog"
+    }
+    ,
+    {
+        "attributeCode": "size",
+        "catCode": "topwear",
+        "attributeValueName": """{"en-SA":"Round","ar-SA":"دائري"}""",
+        "attributeName": """{"en-SA":"Dial Shape","ar-SA":"شكل المينا"}""",
+        "attributeValueCode": "medium"
+      },
+      {
+        "attributeCode": "color",
+        "catCode": "raincoat",
+        "attributeValueCode": "red"
+      },
+       {
+            "attributeCode": "length",
+            "catCode": "bottomwear",
+            "attributeValueCode": "46"
+        }
+        {
+            "attributeCode": "power",
+            "catCode": "mobile-battery",
+            "attributeValueCode": "6000 mah"
+        },
+        {
+            "attributeCode": "color",
+            "catCode": "mobile-accessories",
+            "attributeValueCode": "white"
+        },
+        {
+            "attributeCode": "os",
+            "catCode": "smart-tv",
+            "attributeValueCode": "ios"
+        },
+        {
+            "attributeCode": "screen-size",
+            "catCode": "lcd",
+            "attributeValueCode": "55 inches"
+        }
+  ]
+}
+
+PUT hnak_product/_doc/5
+{
+  "name": "prod5",
+  "legacyId": "5b3e30149bd1d9c23d21afa8",
+  "parent": 0,
+  "id": "5b3e30149bd1d9c23d21afa5",
+  "code": "5b3e30149bd1d9c23d21afa5",
+  "imagePath": "https://images.globalindustrial.com/images/275x275/PG90443.jpg",
+  "url": "/product/prod5",
+  "desc": """{"en-SA":"Product 5","ar-SA":"دائري"}""",
+  "price": 500.28,
+  "stock": 0,
+  "available": false,
+  "mappings": [
+    {
+      "attributeCode": "size",
+      "catCode": "fashion",
+      "attributeValueName": """{"en-SA":"Round","ar-SA":"دائري"}""",
+      "attributeName": """{"en-SA":"Dial Shape","ar-SA":"شكل المينا"}""",
+      "attributeValueCode": "small"
+    },
+    {
+      "attributeCode": "color",
+      "catCode": "fashion",
+      "attributeValueCode": "brown"
+    },
+    {
+      "attributeCode": "dial",
+      "catCode": "watches",
+      "attributeValueCode": "round"
+    },
+    {
+      "attributeCode": "movement",
+      "catCode": "watches",
+      "attributeValueCode": "analog"
+    }
+  ]
+}
+
+PUT hnak_product/_doc/6
+{
+  "name": "prod6",
+  "legacyId": "5b3e30149bd1d9c23d21afa6",
+  "parent": 0,
+  "id": "5b3e30149bd1d9c23d21afa6",
+  "code": "5b3e30149bd1d9c23d21afa6",
+  "imagePath": "https://images.globalindustrial.com/images/275x275/PG90443.jpg",
+  "url": "/product/prod6",
+  "desc": """{"en-SA":"Product 6","ar-SA":"دائري"}""",
+  "price": 600.20,
+  "stock": 0,
+  "available": false,
+  "mappings": [
+    {
+      "attributeCode": "size",
+      "catCode": "fashion",
+      "attributeValueName": """{"en-SA":"Round","ar-SA":"دائري"}""",
+      "attributeName": """{"en-SA":"Dial Shape","ar-SA":"شكل المينا"}""",
+      "attributeValueCode": "medium"
+    },
+    {
+      "attributeCode": "color",
+      "catCode": "fashion",
+      "attributeValueCode": "brown"
+    },
+    {
+      "attributeCode": "dial",
+      "catCode": "watches",
+      "attributeValueCode": "round"
+    },
+    {
+      "attributeCode": "movement",
+      "catCode": "watches",
+      "attributeValueCode": "digital"
+    }
+  ]
+}
+
+PUT hnak_product/_doc/7
+{
+  "name": "prod7",
+  "legacyId": "5b3e30149bd1d9c23d21afa7",
+  "parent": 0,
+  "id": "5b3e30149bd1d9c23d21afa7",
+  "code": "5b3e30149bd1d9c23d21afa7",
+  "imagePath": "https://images.globalindustrial.com/images/275x275/PG90448.jpg",
+  "url": "/product/prod7",
+  "desc": """{"en-SA":"Product 7","ar-SA":"دائري"}""",
+  "price": 700.34,
+  "stock": 0,
+  "available": false,
+  "mappings": [
+    {
+      "attributeCode": "size",
+      "catCode": "fashion",
+      "attributeValueName": """{"en-SA":"Round","ar-SA":"دائري"}""",
+      "attributeName": """{"en-SA":"Dial Shape","ar-SA":"شكل المينا"}""",
+      "attributeValueCode": "small"
+    },
+    {
+      "attributeCode": "color",
+      "catCode": "fashion",
+      "attributeValueCode": "red"
+    },
+    {
+      "attributeCode": "dial",
+      "catCode": "watches",
+      "attributeValueCode": "square"
+    },
+    {
+      "attributeCode": "movement",
+      "catCode": "watches",
+      "attributeValueCode": "analog"
+    }
+  ]
+}
+
+PUT hnak_product/_doc/8
+{
+  "name": "prod8",
+  "legacyId": "5b3e30149bd1d9c23d21afa8",
+  "parent": 0,
+  "id": "5b3e30149bd1d9c23d21afa8",
+  "code": "5b3e30149bd1d9c23d21afa8",
+  "imagePath": "https://images.globalindustrial.com/images/275x275/PG90445.jpg",
+  "url": "/product/prod8",
+  "desc": """{"en-SA":"Product 8","ar-SA":"دائري"}""",
+  "price": 800,
+  "stock": 0,
+  "available": false,
+  "mappings": [
+    {
+      "attributeCode": "size",
+      "catCode": "fashion",
+      "attributeValueName": """{"en-SA":"Round","ar-SA":"دائري"}""",
+      "attributeName": """{"en-SA":"Dial Shape","ar-SA":"شكل المينا"}""",
+      "attributeValueCode": "medium"
+    },
+    {
+      "attributeCode": "color",
+      "catCode": "fashion",
+      "attributeValueCode": "red"
+    },
+    {
+      "attributeCode": "dial",
+      "catCode": "watches",
+      "attributeValueCode": "square"
+    },
+    {
+      "attributeCode": "movement",
+      "catCode": "watches",
+      "attributeValueCode": "digital"
+    }
+  ]
+}
+
+PUT hnak_product/_doc/9
+{
+  "name": "prod9",
+  "legacyId": "5b3e30149bd1d9c23d21afa8",
+  "id": "5b3e30149bd1d9c23d21afa9",
+  "code": "5b3e30149bd1d9c23d21afa9",
+  "imagePath": "https://images.globalindustrial.com/images/275x275/PG90444.jpg",
+  "url": "/product/prod9",
+  "desc": """{"en-SA":"Product 9","ar-SA":"دائري"}""",
+  "price": 900.00,
+  "parent": 0,
+  "stock": 0,
+  "available": false,
+  "mappings": [
+    {
+      "attributeCode": "size",
+      "catCode": "fashion",
+      "attributeValueName": """{"en-SA":"Round","ar-SA":"دائري"}""",
+      "attributeName": """{"en-SA":"Dial Shape","ar-SA":"شكل المينا"}""",
+      "attributeValueCode": "large"
+    },
+    {
+      "attributeCode": "color",
+      "catCode": "fashion",
+      "attributeValueCode": "red"
+    },
+    {
+      "attributeCode": "dial",
+      "catCode": "watches",
+      "attributeValueCode": "square"
+    },
+    {
+      "attributeCode": "movement",
+      "catCode": "watches",
+      "attributeValueCode": "digital"
+    }
+  ]
+}
+
+
+========
+
+	GET hnak_category/_search
+	{
+	  "query": {
+	    "bool": {
+	      "filter": [
+	        {"term": {
+	          "code": "mobile-accessories"
+	        }}
+	      ]
+	    }
+	  }
+	}
+
+	GET hnak_product/_search
+	{
+	  "query": {
+	    "match_all": {}
+	  }
+	}
+	GET hnak_product/_search
+	{
+	  "query": {
+	    "nested": {
+	      "path": "mappings",
+	      "query": {
+	        "bool": {
+	          "should": [
+	            {
+	              "term": {
+	                "mappings.catCode": {
+	                  "value": "mobile-accessories"
+	                }
+	              }
+	            },
+	            {
+	              "term": {
+	                "mappings.catCode": {
+	                  "value": "mobile-accessories"
+	                }
+	              }
+	            },
+	            {
+	              "term": {
+	                "mappings.catCode": {
+	                  "value": "mobile-battery"
+	                }
+	              }
+	            }
+	          ]
+	        }
+	      }
+	    }
+	  }
+	}
+
+
+	PUT hnak_category/_doc/1
+	{
+	  "code" : "men",
+	  "name":"men",
+	  "children": [
+	    {
+	      "code" : "clothing",
+	      "name":"clothing"
+	    }
+	  ]
+	}
+	PUT hnak_category/_doc/2
+	{
+	  "code" : "clothing",
+	  "name":"clothing",
+	  "parents": [
+	    {
+	      "code" : "men",
+	      "name":"men",
+	      "level": 0
+	    }],
+	  "children": [
+	    {
+	      "code" : "topwear",
+	      "name":"topwear"
+	    },
+	    {
+	      "code" : "bottomwear",
+	      "name":"bottomwear"
+	    },
+	    {
+	      "code" : "raincoat",
+	      "name":"raincoat"
+	    }
+	  ]
+	}
+
+	PUT hnak_category/_doc/3
+	{
+	  "code": "topwear",
+	  "name": "topwear",
+	  "parents": [
+	    {
+	      "code": "men",
+	      "name": "men",
+	      "level": 0
+	    },
+	    {
+	      "code": "clothing",
+	      "name": "clothing",
+	      "level": 1
+	    }
+	  ]
+	}
+	PUT hnak_category/_doc/4
+	{
+	  "code": "bottomwear",
+	  "name": "bottomwear",
+	  "parents": [
+	    {
+	      "code": "men",
+	      "name": "men",
+	      "level": 0
+	    },
+	    {
+	      "code": "clothing",
+	      "name": "clothing",
+	      "level": 1
+	    }
+	  ]
+	}
+
+	PUT hnak_category/_doc/5
+	{
+	  "code": "raincoat",
+	  "name": "raincoat",
+	  "parents": [
+	    {
+	      "code": "men",
+	      "name": "men",
+	      "level": 0
+	    },
+	    {
+	      "code": "clothing",
+	      "name": "clothing",
+	      "level": 1
+	    }
+	  ]
+	}
+
+	PUT hnak_category/_doc/6
+	{
+	  "code" : "electronics",
+	  "name":"electronics",
+	  "children": [
+	    {
+	      "code" : "mobile",
+	      "name":"mobile"
+	    },
+	    {
+	      "code" : "tv",
+	      "name":"tv"
+	    }
+	  ]
+	}
+	PUT hnak_category/_doc/7
+	{
+	  "code" : "mobile",
+	  "name":"mobile",
+	  "parents": [
+	   
+	    {
+	      "code" : "electronics",
+	      "name":"electronics",
+	      "level": 0
+	    }],
+	  "children": [
+	    {
+	      "code" : "mobile-accessories",
+	      "name":"mobile-accessories"
+	    },
+	    {
+	      "code" : "mobile-battery",
+	      "name":"mobile-battery"
+	    }
+	  ]
+	}
+
+	PUT hnak_category/_doc/8
+	{
+	  "code" : "tv",
+	  "name":"tv",
+	  "parents": [
+	   
+	    {
+	      "code" : "electronics",
+	      "name":"electronics",
+	      "level":0
+	    }],
+	  "children": [
+	    {
+	      "code" : "smart-tv",
+	      "name":"smart-tv"
+	    },
+	    {
+	      "code" : "lcd",
+	      "name":"lcd"
+	    }
+	  ]
+	}
+
+	PUT hnak_category/_doc/9
+	{
+	  "code": "smart-tv",
+	  "name": "smart-tv",
+	  "parents": [
+	     {
+	      "code" : "electronics",
+	      "name":"electronics",
+	      "level":0
+	    },
+	     {
+	      "code" : "tv",
+	      "name":"tv",
+	      "level":1
+	    }
+	  ]
+	}
+
+	PUT hnak_category/_doc/10
+	{
+	  "code": "lcd",
+	  "name": "lcd",
+	  "parents": [
+	     {
+	      "code" : "electronics",
+	      "name":"electronics",
+	      "level":0
+	    },
+	     {
+	      "code" : "tv",
+	      "name":"tv",
+	      "level":1
+	    }
+	  ]
+	}
+
+	PUT hnak_category/_doc/11
+	{
+	  "code": "mobile-accessories",
+	  "name": "mobile-accessories",
+	  "parents": [
+	     {
+	      "code" : "electronics",
+	      "name":"electronics",
+	      "level":0
+	    },
+	     {
+	      "code" : "mobile",
+	      "name":"mobile",
+	      "level":1
+	    }
+	  ]
+	}
+
+	PUT hnak_category/_doc/11
+	{
+	  "code": "mobile-battery",
+	  "name": "mobile-battery",
+	  "parents": [
+	     {
+	      "code" : "electronics",
+	      "name":"electronics",
+	      "level":0
+	    },
+	     {
+	      "code" : "mobile",
+	      "name":"mobile",
+	      "level":1
+	    }
+	  ]
+	}
+
+
+
+
+	POST /hnak_product/_search
+	{ 
+	  "aggs": {
+	    "aggs_brand": {
+	      "filter": {
+	        "bool": {
+	          "filter": [
+	            {
+	              "nested" : {
+	                "path": "mappings",
+	                "query" : {
+	                  
+	                }
+	              }
+	            }
+	          ]
+	        }
+	      },
+	      "aggs": {
+	        "facets": {
+	          "nested": {
+	            "path": "string_facet"
+	          },
+	          "aggs": {
+	            "aggs_special": {
+	              "filter": {
+	                "match": {
+	                  "string_facet.facet_name": "brand"
+	                }
+	              },
+	              "aggs": {
+	                "names": {
+	                  "terms": {
+	                    "field": "string_facet.facet_name"
+	                  },
+	                  "aggs": {
+	                    "values": {
+	                      "terms": {
+	                        "field": "string_facet.facet_value"
+	                      }
+	                    }
+	                  }
+	                }
+	              }
+	            }
+	          }
+	        }
+	      }
+	    }
+	    }
+	  }
+
+	PUT hnak_product/_doc/1
+	{
+	  "name": "prod1",
+	  "legacyId": "5b3e30149bd1d9c23d21afa1",
+	  "parent": 0,
+	  "id": "5b3e30149bd1d9c23d21afa1",
+	  "code": "5b3e30149bd1d9c23d21afa1",
+	  "imagePath": "https://images.globalindustrial.com/images/275x275/PG90441.jpg",
+	  "url": "/product/prod1",
+	  "desc": """{"en-SA":"Product 1","ar-SA":"دائري"}""",
+	  "price": 99.99,
+	  "stock": 0,
+	  "available": false,
+	  "mappings": [
+	    {
+	      "attributeCode": "size",
+	      "catCode": "topwear",
+	      "attributeValueName": """{"en-SA":"Round","ar-SA":"دائري"}""",
+	      "attributeName": """{"en-SA":"Dial Shape","ar-SA":"شكل المينا"}""",
+	      "attributeValueCode": "small"
+	    },
+	    {
+	      "attributeCode": "color",
+	      "catCode": "raincoat",
+	      "attributeValueCode": "brown"
+	    },
+	    {
+	      "attributeCode": "dial",
+	      "catCode": "watches",
+	      "attributeValueCode": "round"
+	    },
+	    {
+	        "attributeCode": "movement",
+	        "catCode": "watches",
+	        "attributeValueCode": "analog"
+	      },
+	      {
+	          "attributeCode": "length",
+	          "catCode": "bottomwear",
+	          "attributeValueCode": "44"
+	      },
+	      {
+	          "attributeCode": "power",
+	          "catCode": "mobile-battery",
+	          "attributeValueCode": "5000 mah"
+	      },
+	      {
+	          "attributeCode": "color",
+	          "catCode": "mobile-accessories",
+	          "attributeValueCode": "white"
+	      },
+	      {
+	          "attributeCode": "os",
+	          "catCode": "smart-tv",
+	          "attributeValueCode": "andriod"
+	      },
+	      {
+	          "attributeCode": "screen-size",
+	          "catCode": "lcd",
+	          "attributeValueCode": "44 inches"
+	      }
+	  ]
+	}
+
+	PUT hnak_product/_doc/2
+	{
+	  "name": "prod2",
+	  "legacyId": "5b3e30149bd1d9c23d21afa2",
+	  "parent": 0,
+	  "id": "5b3e30149bd1d9c23d21afa2",
+	  "code": "5b3e30149bd1d9c23d21afa2",
+	  "imagePath": "https://images.globalindustrial.com/images/275x275/PG110058.jpg",
+	  "url": "/product/prod2",
+	  "desc": """{"en-SA":"Product 2","ar-SA":"دائري"}""",
+	  "price": 200.99,
+	  "stock": 0,
+	  "available": false,
+	  "mappings": [
+	    {
+	      "attributeCode": "size",
+	      "catCode": "fashion",
+	      "attributeValueName": """{"en-SA":"Round","ar-SA":"دائري"}""",
+	      "attributeName": """{"en-SA":"Dial Shape","ar-SA":"شكل المينا"}""",
+	      "attributeValueCode": "medium"
+	    },
+	    {
+	      "attributeCode": "color",
+	      "catCode": "fashion",
+	      "attributeValueCode": "brown"
+	    },
+	    {
+	      "attributeCode": "dial",
+	      "catCode": "watches",
+	      "attributeValueCode": "round"
+	    },
+	    {
+	      "attributeCode": "movement",
+	      "catCode": "watches",
+	      "attributeValueCode": "analog"
+	    },
+	    {
+	        "attributeCode": "size",
+	        "catCode": "topwear",
+	        "attributeValueName": """{"en-SA":"Round","ar-SA":"دائري"}""",
+	        "attributeName": """{"en-SA":"Dial Shape","ar-SA":"شكل المينا"}""",
+	        "attributeValueCode": "medium"
+	      },
+	      {
+	        "attributeCode": "color",
+	        "catCode": "raincoat",
+	        "attributeValueCode": "brown"
+	      },
+	       {
+	            "attributeCode": "length",
+	            "catCode": "bottomwear",
+	            "attributeValueCode": "46"
+	        },
+	        {
+	            "attributeCode": "power",
+	            "catCode": "mobile-battery",
+	            "attributeValueCode": "4000 mah"
+	        },
+	        {
+	            "attributeCode": "color",
+	            "catCode": "mobile-accessories",
+	            "attributeValueCode": "blue"
+	        },
+	        {
+	            "attributeCode": "os",
+	            "catCode": "smart-tv",
+	            "attributeValueCode": "symbian"
+	        },
+	        {
+	            "attributeCode": "screen-size",
+	            "catCode": "lcd",
+	            "attributeValueCode": "55 inches"
+	        }
+	  ]
+	}
+
+	PUT hnak_product/_doc/3
+	{
+	  "name": "prod3",
+	  "legacyId": "5b3e30149bd1d9c23d21afa3",
+	  "parent": 0,
+	  "id": "5b3e30149bd1d9c23d21afa3",
+	  "code": "5b3e30149bd1d9c23d21afa3",
+	  "imagePath": "https://images.globalindustrial.com/images/275x275/PG114734.jpg",
+	  "url": "/product/prod3",
+	  "desc": """{"en-SA":"Product 3","ar-SA":"دائري"}""",
+	  "price": 300.99,
+	  "stock": 0,
+	  "available": false,
+	  "mappings": [
+	    {
+	      "attributeCode": "size",
+	      "catCode": "fashion",
+	      "attributeValueName": """{"en-SA":"Round","ar-SA":"دائري"}""",
+	      "attributeName": """{"en-SA":"Dial Shape","ar-SA":"شكل المينا"}""",
+	      "attributeValueCode": "small"
+	    },
+	    {
+	      "attributeCode": "color",
+	      "catCode": "fashion",
+	      "attributeValueCode": "red"
+	    },
+	    {
+	      "attributeCode": "dial",
+	      "catCode": "watches",
+	      "attributeValueCode": "round"
+	    },
+	    {
+	      "attributeCode": "movement",
+	      "catCode": "watches",
+	      "attributeValueCode": "analog"
+	    },
+	    {
+	        "attributeCode": "size",
+	        "catCode": "topwear",
+	        "attributeValueName": """{"en-SA":"Round","ar-SA":"دائري"}""",
+	        "attributeName": """{"en-SA":"Dial Shape","ar-SA":"شكل المينا"}""",
+	        "attributeValueCode": "small"
+	      },
+	      {
+	        "attributeCode": "color",
+	        "catCode": "raincoat",
+	        "attributeValueCode": "red"
+	      },
+	       {
+	            "attributeCode": "length",
+	            "catCode": "bottomwear",
+	            "attributeValueCode": "44"
+	        },
+	        {
+	            "attributeCode": "camera",
+	            "catCode": "mobile",
+	            "attributeValueCode": "64 mpx"
+	        },
+	        {
+	            "attributeCode": "color",
+	            "catCode": "mobile-accessories",
+	            "attributeValueCode": "white"
+	        },
+	        {
+	            "attributeCode": "os",
+	            "catCode": "smart-tv",
+	            "attributeValueCode": "symbian"
+	        },
+	        {
+	            "attributeCode": "screen-size",
+	            "catCode": "lcd",
+	            "attributeValueCode": "44 inches"
+	        }
+	  ]
+	}
+
+	PUT hnak_product/_doc/4
+	{
+	  "name": "prod4",
+	  "legacyId": "5b3e30149bd1d9c23d21afa4",
+	  "parent": 0,
+	  "id": "5b3e30149bd1d9c23d21afa4",
+	  "code": "5b3e30149bd1d9c23d21afa4",
+	  "imagePath": "https://images.globalindustrial.com/images/275x275/PG90447.jpg",
+	  "url": "/product/prod4",
+	  "desc": """{"en-SA":"Product 4","ar-SA":"دائري"}""",
+	  "price": 400.28,
+	  "stock": 0,
+	  "available": false,
+	  "mappings": [
+	    {
+	      "attributeCode": "size",
+	      "catCode": "fashion",
+	      "attributeValueName": """{"en-SA":"Round","ar-SA":"دائري"}""",
+	      "attributeName": """{"en-SA":"Dial Shape","ar-SA":"شكل المينا"}""",
+	      "attributeValueCode": "medium"
+	    },
+	    {
+	      "attributeCode": "color",
+	      "catCode": "fashion",
+	      "attributeValueCode": "red"
+	    },
+	    {
+	      "attributeCode": "dial",
+	      "catCode": "watches",
+	      "attributeValueCode": "round"
+	    },
+	    {
+	      "attributeCode": "movement",
+	      "catCode": "watches",
+	      "attributeValueCode": "analog"
+	    }
+	    ,
+	    {
+	        "attributeCode": "size",
+	        "catCode": "topwear",
+	        "attributeValueName": """{"en-SA":"Round","ar-SA":"دائري"}""",
+	        "attributeName": """{"en-SA":"Dial Shape","ar-SA":"شكل المينا"}""",
+	        "attributeValueCode": "medium"
+	      },
+	      {
+	        "attributeCode": "color",
+	        "catCode": "raincoat",
+	        "attributeValueCode": "red"
+	      },
+	       {
+	            "attributeCode": "length",
+	            "catCode": "bottomwear",
+	            "attributeValueCode": "46"
+	        },
+	        {
+	            "attributeCode": "power",
+	            "catCode": "mobile-battery",
+	            "attributeValueCode": "6000 mah"
+	        },
+	        {
+	            "attributeCode": "color",
+	            "catCode": "mobile-accessories",
+	            "attributeValueCode": "white"
+	        },
+	        {
+	            "attributeCode": "os",
+	            "catCode": "smart-tv",
+	            "attributeValueCode": "ios"
+	        },
+	        {
+	            "attributeCode": "screen-size",
+	            "catCode": "lcd",
+	            "attributeValueCode": "55 inches"
+	        }
+	  ]
+	}
+	PUT hnak_product/_doc/5
+	{
+	  "name": "prod5",
+	  "legacyId": "5b3e30149bd1d9c23d21afa8",
+	  "parent": 0,
+	  "price": 0,
+	  "stock": 0,
+	  "available": false,
+	  "mappings": [
+	    {
+	      "attributeCode": "size",
+	      "catCode": "fashion",
+	      "attributeValueName": """{"en-SA":"Round","ar-SA":"دائري"}""",
+	      "attributeName": """{"en-SA":"Dial Shape","ar-SA":"شكل المينا"}""",
+	      "attributeValueCode": "small"
+	    },
+	    {
+	      "attributeCode": "color",
+	      "catCode": "fashion",
+	      "attributeValueCode": "brown"
+	    },
+	    {
+	      "attributeCode": "dial",
+	      "catCode": "watches",
+	      "attributeValueCode": "round"
+	    },
+	    {
+	      "attributeCode": "movement",
+	      "catCode": "watches",
+	      "attributeValueCode": "analog"
+	    }
+	  ]
+	}
+
+	PUT hnak_product/_doc/6
+	{
+	  "name": "prod6",
+	  "legacyId": "5b3e30149bd1d9c23d21afa8",
+	  "parent": 0,
+	  "price": 0,
+	  "stock": 0,
+	  "available": false,
+	  "mappings": [
+	    {
+	      "attributeCode": "size",
+	      "catCode": "fashion",
+	      "attributeValueName": """{"en-SA":"Round","ar-SA":"دائري"}""",
+	      "attributeName": """{"en-SA":"Dial Shape","ar-SA":"شكل المينا"}""",
+	      "attributeValueCode": "medium"
+	    },
+	    {
+	      "attributeCode": "color",
+	      "catCode": "fashion",
+	      "attributeValueCode": "brown"
+	    },
+	    {
+	      "attributeCode": "dial",
+	      "catCode": "watches",
+	      "attributeValueCode": "round"
+	    },
+	    {
+	      "attributeCode": "movement",
+	      "catCode": "watches",
+	      "attributeValueCode": "digital"
+	    }
+	  ]
+	}
+
+	PUT hnak_product/_doc/7
+	{
+	  "name": "prod7",
+	  "legacyId": "5b3e30149bd1d9c23d21afa8",
+	  "parent": 0,
+	  "price": 0,
+	  "stock": 0,
+	  "available": false,
+	  "mappings": [
+	    {
+	      "attributeCode": "size",
+	      "catCode": "fashion",
+	      "attributeValueName": """{"en-SA":"Round","ar-SA":"دائري"}""",
+	      "attributeName": """{"en-SA":"Dial Shape","ar-SA":"شكل المينا"}""",
+	      "attributeValueCode": "small"
+	    },
+	    {
+	      "attributeCode": "color",
+	      "catCode": "fashion",
+	      "attributeValueCode": "red"
+	    },
+	    {
+	      "attributeCode": "dial",
+	      "catCode": "watches",
+	      "attributeValueCode": "square"
+	    },
+	    {
+	      "attributeCode": "movement",
+	      "catCode": "watches",
+	      "attributeValueCode": "analog"
+	    }
+	  ]
+	}
+
+	PUT hnak_product/_doc/8
+	{
+	  "name": "prod8",
+	  "legacyId": "5b3e30149bd1d9c23d21afa8",
+	  "parent": 0,
+	  "price": 0,
+	  "stock": 0,
+	  "available": false,
+	  "mappings": [
+	    {
+	      "attributeCode": "size",
+	      "catCode": "fashion",
+	      "attributeValueName": """{"en-SA":"Round","ar-SA":"دائري"}""",
+	      "attributeName": """{"en-SA":"Dial Shape","ar-SA":"شكل المينا"}""",
+	      "attributeValueCode": "medium"
+	    },
+	    {
+	      "attributeCode": "color",
+	      "catCode": "fashion",
+	      "attributeValueCode": "red"
+	    },
+	    {
+	      "attributeCode": "dial",
+	      "catCode": "watches",
+	      "attributeValueCode": "square"
+	    },
+	    {
+	      "attributeCode": "movement",
+	      "catCode": "watches",
+	      "attributeValueCode": "digital"
+	    },
+	    {
+	      "attributeCode": "m1",
+	      "catCode": "mobile",
+	      "attributeValueCode": "m2"
+	    }
+	  ]
+	}
+
+
+
+
+	PUT /shirts
+	{
+	  "mappings": {
+	    "properties": {
+	      "brand": { "type": "keyword"},
+	      "color": { "type": "nested"},
+	      "model": { "type": "keyword"}
+	    }
+	  }
+	}
+
+	PUT /shirts/_doc/1?refresh
+	{
+	  "brand": "gucci",
+	  "color": "red",
+	  "model": "slim"
+	}
+
+	PUT /shirts/_doc/2?refresh
+	{
+	  "brand": "gucci",
+	  "color": "green",
+	  "model": "slim"
+	}
+
+	PUT /shirts/_doc/3?refresh
+	{
+	  "brand": "gucci",
+	  "color": "yellow",
+	  "model": "slim"
+	}
+
+	GET /shirts/_search
+	{
+	  "query": {
+	    "bool": {
+	      "filter": {
+	        "term": { "brand": "gucci" } 
+	      }
+	    }
+	  },
+	  "aggs": {
+	    "colors": {
+	      "terms": { "field": "color" } 
+	    },
+	    "color_red": {
+	      "filter": {
+	        "term": { "color": "red" } 
+	      },
+	      "aggs": {
+	        "models": {
+	          "terms": { "field": "model" } 
+	        }
+	      }
+	    }
+	  }
+	}
+
+	GET hnak_product/_mapping
+	GET hnak_product/_search
+	DELETE hnak_product
+
+
+	PUT /hnak_product
+	{
+	  "mappings": {
+	    "properties": {
+	      "suggest": {
+	        "type": "completion"
+	      },
+	      "name": {
+	        "type": "text",
+	        "fields": {
+	          "keyword": {
+	            "type": "keyword",
+	            "ignore_above": 256
+	          }
+	        }
+	      },
+	      "mappings": {
+	        "type": "nested",
+	        "properties": {
+	          "attributeValueCode": {
+	            "type": "keyword"
+	          },
+	          "attibuteValueName": {
+	            "type": "text",
+	            "fields": {
+	              "keyword": {
+	                "type": "keyword",
+	                "ignore_above": 256
+	              }
+	            }
+	          },
+	          "attributeCode": {
+	            "type": "keyword"
+	          },
+	          "attributeName": {
+	            "type": "text",
+	            "fields": {
+	              "keyword": {
+	                "type": "keyword",
+	                "ignore_above": 256
+	              }
+	            }
+	          },
+	          "catCode": {
+	            "type": "keyword"
+	          },
+	          "catName": {
+	            "type": "text",
+	            "fields": {
+	              "keyword": {
+	                "type": "keyword",
+	                "ignore_above": 256
+	              }
+	            }
+	          }
+	        }
+	      }
+	    }
+	  }
+	}
+
+	PUT hnak_product/_doc/1 
+	{
+	  "name":"ali",
+	  "mapping" : {"age": 1}
+	}
+		  
+		
+
+
+	GET _cat/indices
+
+	GET hnak_product/_search
+
+	GET hnak_category/_search
+
+
+	GET kibana_sample_data_ecommerce/_search
+
+	DELETE test_prod
+
+	GET test_prod/_mapping
+
+	PUT test_prod/_doc/1
+	{
+	  "productMapping": [
+	    {
+	      "cat": "mobile",
+	      "attr": "RAM",
+	      "attr_val": "6 GB"
+	    },
+	    {
+	      "cat": "mobile",
+	      "attr": "brand",
+	      "attr_val": "POCO"
+	    },
+	    {
+	      "cat": "mobile",
+	      "attr": "memory",
+	      "attr_val": "250 GB"
+	    },
+	    {
+	      "cat": "mobile",
+	      "attr": "battery",
+	      "attr_val": "5000"
+	    }
+	  ]
+	}
+
+
+	PUT test_prod/_doc/2
+	{
+	  "productMapping": [
+	    {
+	      "cat": "mobile",
+	      "attr": "RAM",
+	      "attr_val": "2 GB"
+	    },
+	    {
+	      "cat": "mobile",
+	      "attr": "brand",
+	      "attr_val": "POCO"
+	    },
+	    {
+	      "cat": "mobile",
+	      "attr": "memory",
+	      "attr_val": "128 GB"
+	    },
+	    {
+	      "cat": "mobile",
+	      "attr": "battery",
+	      "attr_val": "3000"
+	    }
+	  ]
+	}
+
+
+	PUT test_prod/_doc/3
+	{
+	  "productMapping": [
+	    {
+	      "cat": "mobile",
+	      "attr": "RAM",
+	      "attr_val": "2 GB"
+	    },
+	    {
+	      "cat": "mobile",
+	      "attr": "brand",
+	      "attr_val": "Sam"
+	    },
+	    {
+	      "cat": "mobile",
+	      "attr": "memory",
+	      "attr_val": "128 GB"
+	    },
+	    {
+	      "cat": "mobile",
+	      "attr": "battery",
+	      "attr_val": "3000"
+	    }
+	  ]
+	}
+
+	PUT test_prod/_doc/4
+	{
+	  "productMapping": [
+	    {
+	      "cat": "mobile",
+	      "attr": "RAM",
+	      "attr_val": "2 GB"
+	    },
+	    {
+	      "cat": "mobile",
+	      "attr": "brand",
+	      "attr_val": "Sam"
+	    },
+	    {
+	      "cat": "mobile",
+	      "attr": "memory",
+	      "attr_val": "128 GB"
+	    },
+	    {
+	      "cat": "mobile",
+	      "attr": "battery",
+	      "attr_val": "2000"
+	    }
+	  ]
+	}
+
+	DELETE /product
+
+	PUT /product
+	{
+	  "mappings": {
+	    "properties": {
+	      "cats" : {"type":"keyword"},
+	      "price" : {"type": "double"},
+	      "string_facet": {
+	        "type": "nested",
+	        "properties": {
+	          "facet_name": { "type": "keyword"},
+	          "facet_value": { "type": "keyword"}
+	        }
+	      }
+	    }
+	  }
+	}
+
+
+
+	POST /_bulk
+	{ "index": { "_index": "product", "_id": 1} }
+	{"name":"Lila Macejkovic","cats":["A","B"],"price": "21.3","string_facet":[{"facet_name":"brand","facet_value":"ubest"},{"facet_name":"color","facet_value":"green"},{"facet_name":"department","facet_value":"soccer"}]}
+	{ "index": { "_index": "product", "_id": 2} }
+	{"name":"Soledad O'Conner","cats":["B","C"],"price": "30","string_facet":[{"facet_name":"brand","facet_value":"ubest"},{"facet_name":"color","facet_value":"green"},{"facet_name":"department","facet_value":"adventure"}]}
+	{ "index": { "_index": "product", "_id": 3} }
+	{"name":"Cherryl Streich","cats":["C","D"],"price": "201","string_facet":[{"facet_name":"brand","facet_value":"beert"},{"facet_name":"color","facet_value":"white"},{"facet_name":"department","facet_value":"soccer"}]}
+	{ "index": { "_index": "product", "_id": 4} }
+	{"name":"Celinda Price","cats":["D","A"],"price": "707","string_facet":[{"facet_name":"brand","facet_value":"ubest"},{"facet_name":"color","facet_value":"yellow"},{"facet_name":"department","facet_value":"adventure"}]}
+	{ "index": { "_index": "product", "_id": 5} }
+	{"name":"Elvin Thompson","cats":["A","B"],"price": "1", "string_facet":[{"facet_name":"brand","facet_value":"hokey"},{"facet_name":"color","facet_value":"yellow"},{"facet_name":"department","facet_value":"adventure"}]}
+	{ "index": { "_index": "product", "_id": 6} }
+	{"name":"Jenni MacGyver","cats":["C","A"],"price": "400.2","string_facet":[{"facet_name":"brand","facet_value":"beert"},{"facet_name":"color","facet_value":"black"},{"facet_name":"department","facet_value":"casual"}]}
+	{ "index": { "_index": "product", "_id": 7} }
+	{"name":"Erwin Nader","cats":["E","B"],"price": "10002","string_facet":[{"facet_name":"brand","facet_value":"hokey"},{"facet_name":"color","facet_value":"white"},{"facet_name":"department","facet_value":"adventure"}]}
+	{ "index": { "_index": "product", "_id": 8} }
+	{"name":"Coleman Sanford","cats":["C"],"price": "250", "string_facet":[{"facet_name":"color","facet_value":"black"},{"facet_name":"department","facet_value":"casual"}]}
+	{ "index": { "_index": "product", "_id": 9} }
+	{"name":"Everett Metz","cats":["D"],"price": "120","string_facet":[{"facet_name":"brand","facet_value":"hokey"},{"facet_name":"color","facet_value":"white"},{"facet_name":"department","facet_value":"soccer"}]}
+	{ "index": { "_index": "product", "_id": 10} }
+	{"name":"Leonida Oberbrunner","cats":["E"],"price": "500","string_facet":[{"facet_name":"brand","facet_value":"amazon"},{"facet_name":"color","facet_value":"grey"},{"facet_name":"department","facet_value":"Admin"}]}
+
+
+	PUT /product
+	{
+	  "mappings": {
+	    "properties": {
+	      "string_facet": {
+	        "type": "nested",
+	        "properties": {
+	          "facet_name": { "type": "keyword"},
+	          "facet_value": { "type": "keyword"}
+	        }
+	      }
+	    }
+	  }
+	}
+
+	POST /_bulk
+	{ "index": { "_index": "product", "_id": 1} }
+	{"name":"Lila Macejkovic","string_facet":[{"facet_name":"brand","facet_value":"ubest"},{"facet_name":"color","facet_value":"green"},{"facet_name":"department","facet_value":"soccer"}]}
+	{ "index": { "_index": "product", "_id": 2} }
+	{"name":"Soledad O'Conner","string_facet":[{"facet_name":"brand","facet_value":"ubest"},{"facet_name":"color","facet_value":"green"},{"facet_name":"department","facet_value":"adventure"}]}
+	{ "index": { "_index": "product", "_id": 3} }
+	{"name":"Cherryl Streich","string_facet":[{"facet_name":"brand","facet_value":"beert"},{"facet_name":"color","facet_value":"white"},{"facet_name":"department","facet_value":"soccer"}]}
+	{ "index": { "_index": "product", "_id": 4} }
+	{"name":"Celinda Price","string_facet":[{"facet_name":"brand","facet_value":"ubest"},{"facet_name":"color","facet_value":"yellow"},{"facet_name":"department","facet_value":"adventure"}]}
+	{ "index": { "_index": "product", "_id": 5} }
+	{"name":"Elvin Thompson","string_facet":[{"facet_name":"brand","facet_value":"hokey"},{"facet_name":"color","facet_value":"yellow"},{"facet_name":"department","facet_value":"adventure"}]}
+	{ "index": { "_index": "product", "_id": 6} }
+	{"name":"Jenni MacGyver","string_facet":[{"facet_name":"brand","facet_value":"beert"},{"facet_name":"color","facet_value":"black"},{"facet_name":"department","facet_value":"casual"}]}
+	{ "index": { "_index": "product", "_id": 7} }
+	{"name":"Erwin Nader","string_facet":[{"facet_name":"brand","facet_value":"hokey"},{"facet_name":"color","facet_value":"white"},{"facet_name":"department","facet_value":"adventure"}]}
+	{ "index": { "_index": "product", "_id": 8} }
+	{"name":"Coleman Sanford","string_facet":[{"facet_name":"brand","facet_value":"ubest"},{"facet_name":"color","facet_value":"black"},{"facet_name":"department","facet_value":"casual"}]}
+	{ "index": { "_index": "product", "_id": 9} }
+	{"name":"Everett Metz","string_facet":[{"facet_name":"brand","facet_value":"hokey"},{"facet_name":"color","facet_value":"white"},{"facet_name":"department","facet_value":"soccer"}]}
+	{ "index": { "_index": "product", "_id": 10} }
+	{"name":"Leonida Oberbrunner","string_facet":[{"facet_name":"brand","facet_value":"hokey"},{"facet_name":"color","facet_value":"white"},{"facet_name":"department","facet_value":"adventure"}]}
+
+
+
+	POST /product/_search
+	{
+	  "aggs": {
+	    "aggs_all_filters": {
+	      "filter": {
+	        "bool": {
+	          "filter": [
+	            {
+	              "nested": {
+	                "path": "string_facet",
+	                "query": {
+	                  "bool": {
+	                    "filter": [
+	                      {
+	                        "term": {
+	                          "string_facet.facet_name": "brand"
+	                        }
+	                      },
+	                      {
+	                        "term": {
+	                          "string_facet.facet_value": "hokey"
+	                        }
+	                      }
+	                    ]
+	                  }
+	                }
+	              }
+	            },
+	            {
+	              "nested": {
+	                "path": "string_facet",
+	                "query": {
+	                  "bool": {
+	                    "filter": [
+	                      {
+	                        "term": {
+	                          "string_facet.facet_name": "color"
+	                        }
+	                      },
+	                      {
+	                        "term": {
+	                          "string_facet.facet_value": "white"
+	                        }
+	                      }
+	                    ]
+	                  }
+	                }
+	              }
+	            }
+	          ]
+	        }
+	      },
+	      "aggs": {
+	        "facets": {
+	          "nested": {
+	            "path": "string_facet"
+	          },
+	          "aggs": {
+	            "names": {
+	              "terms": {
+	                "field": "string_facet.facet_name"
+	              },
+	              "aggs": {
+	                "values": {
+	                  "terms": {
+	                    "field": "string_facet.facet_value"
+	                  }
+	                }
+	              }
+	            }
+	          }
+	        }
+	      }
+	    },
+	    "aggs_brand": {
+	      "filter": {
+	        "bool": {
+	          "filter": [
+	            {
+	              "nested": {
+	                "path": "string_facet",
+	                "query": {
+	                  "bool": {
+	                    "filter": [
+	                      {
+	                        "term": {
+	                          "string_facet.facet_name": "color"
+	                        }
+	                      },
+	                      {
+	                        "term": {
+	                          "string_facet.facet_value": "white"
+	                        }
+	                      }
+	                    ]
+	                  }
+	                }
+	              }
+	            }
+	          ]
+	        }
+	      },
+	      "aggs": {
+	        "facets": {
+	          "nested": {
+	            "path": "string_facet"
+	          },
+	          "aggs": {
+	            "aggs_special": {
+	              "filter": {
+	                "match": {
+	                  "string_facet.facet_name": "brand"
+	                }
+	              },
+	              "aggs": {
+	                "names": {
+	                  "terms": {
+	                    "field": "string_facet.facet_name"
+	                  },
+	                  "aggs": {
+	                    "values": {
+	                      "terms": {
+	                        "field": "string_facet.facet_value"
+	                      }
+	                    }
+	                  }
+	                }
+	              }
+	            }
+	          }
+	        }
+	      }
+	    },
+	    "aggs_color": {
+	      "filter": {
+	        "bool": {
+	          "filter": [
+	            {
+	              "nested": {
+	                "path": "string_facet",
+	                "query": {
+	                  "bool": {
+	                    "filter": [
+	                      {
+	                        "term": {
+	                          "string_facet.facet_name": "brand"
+	                        }
+	                      },
+	                      {
+	                        "term": {
+	                          "string_facet.facet_value": "hokey"
+	                        }
+	                      }
+	                    ]
+	                  }
+	                }
+	              }
+	            }
+	          ]
+	        }
+	      },
+	      "aggs": {
+	        "facets": {
+	          "nested": {
+	            "path": "string_facet"
+	          },
+	          "aggs": {
+	            "aggs_special": {
+	              "filter": {
+	                "match": {
+	                  "string_facet.facet_name": "color"
+	                }
+	              },
+	              "aggs": {
+	                "names": {
+	                  "terms": {
+	                    "field": "string_facet.facet_name"
+	                  },
+	                  "aggs": {
+	                    "values": {
+	                      "terms": {
+	                        "field": "string_facet.facet_value"
+	                      }
+	                    }
+	                  }
+	                }
+	              }
+	            }
+	          }
+	        }
+	      }
+	    },
+	    "post_filter": {
+	      "bool": {
+	        "filter": [
+	          {
+	            "nested": {
+	              "path": "string_facet",
+	              "query": {
+	                "bool": {
+	                  "filter": [
+	                    {
+	                      "term": {
+	                        "string_facet.facet_name": "brand"
+	                      }
+	                    },
+	                    {
+	                      "term": {
+	                        "string_facet.facet_value": "hokey"
+	                      }
+	                    }
+	                  ]
+	                }
+	              }
+	            }
+	          },
+	          {
+	            "nested": {
+	              "path": "string_facet",
+	              "query": {
+	                "bool": {
+	                  "filter": [
+	                    {
+	                      "term": {
+	                        "string_facet.facet_name": "color"
+	                      }
+	                    },
+	                    {
+	                      "term": {
+	                        "string_facet.facet_value": "white"
+	                      }
+	                    }
+	                  ]
+	                }
+	              }
+	            }
+	          }
+	        ]
+	      }
+	    }
+	  }
+	}
+	
+	
+	======
+		CATEGORY DATA
+		=====
+			PUT hnak_category
+			{
+			  "mappings": {
+			    "properties": {
+			      "code": {
+			        "type": "keyword"
+			      },
+			      "name": {
+			        "type": "text",
+			        "fields": {
+			          "keyword": {
+			            "type": "keyword",
+			            "ignore_above": 256
+			          }
+			        }
+			      },
+			      "childern": {
+			        "type": "nested",
+			        "properties": {
+			          "code": {
+			            "type": "keyword"
+			          },
+			          "name": {
+			            "type": "text",
+			            "fields": {
+			              "keyword": {
+			                "type": "keyword",
+			                "ignore_above": 256
+			              }
+			            }
+			          }
+			        }
+			      },
+			      "parents": {
+			        "type": "nested",
+			        "properties": {
+			          "name": {
+			            "type": "text",
+			            "fields": {
+			              "keyword": {
+			                "type": "keyword",
+			                "ignore_above": 256
+			              }
+			            }
+			          },
+			          "code": {
+			            "type": "keyword"
+			          }
+			        }
+			      }
+			    }
+			  }
+			}
+
+			PUT hnak_category/_doc/1
+			{
+			  "code" : "men",
+			  "name":"men",
+			  "children": [
+			    {
+			      "code" : "clothing",
+			      "name":"clothing"
+			    }
+			  ]
+			}
+			PUT hnak_category/_doc/2
+			{
+			  "code" : "clothing",
+			  "name":"clothing",
+			  "parents": [
+			    {
+			      "code" : "men",
+			      "name":"men",
+			      "level": 0
+			    }],
+			  "children": [
+			    {
+			      "code" : "topwear",
+			      "name":"topwear"
+			    },
+			    {
+			      "code" : "bottomwear",
+			      "name":"bottomwear"
+			    },
+			    {
+			      "code" : "raincoat",
+			      "name":"raincoat"
+			    }
+			  ]
+			}
+
+			PUT hnak_category/_doc/3
+			{
+			  "code": "topwear",
+			  "name": "topwear",
+			  "parents": [
+			    {
+			      "code": "men",
+			      "name": "men",
+			      "level": 0
+			    },
+			    {
+			      "code": "clothing",
+			      "name": "clothing",
+			      "level": 1
+			    }
+			  ]
+			}
+			PUT hnak_category/_doc/4
+			{
+			  "code": "bottomwear",
+			  "name": "bottomwear",
+			  "parents": [
+			    {
+			      "code": "men",
+			      "name": "men",
+			      "level": 0
+			    },
+			    {
+			      "code": "clothing",
+			      "name": "clothing",
+			      "level": 1
+			    }
+			  ]
+			}
+
+			PUT hnak_category/_doc/5
+			{
+			  "code": "raincoat",
+			  "name": "raincoat",
+			  "parents": [
+			    {
+			      "code": "men",
+			      "name": "men",
+			      "level": 0
+			    },
+			    {
+			      "code": "clothing",
+			      "name": "clothing",
+			      "level": 1
+			    }
+			  ]
+			}
+
+			PUT hnak_category/_doc/6
+			{
+			  "code" : "electronics",
+			  "name":"electronics",
+			  "children": [
+			    {
+			      "code" : "mobile",
+			      "name":"mobile"
+			    },
+			    {
+			      "code" : "tv",
+			      "name":"tv"
+			    }
+			  ]
+			}
+			PUT hnak_category/_doc/7
+			{
+			  "code" : "mobile",
+			  "name":"mobile",
+			  "parents": [
+			   
+			    {
+			      "code" : "electronics",
+			      "name":"electronics",
+			      "level": 0
+			    }],
+			  "children": [
+			    {
+			      "code" : "mobile-accessories",
+			      "name":"mobile-accessories"
+			    },
+			    {
+			      "code" : "mobile-battery",
+			      "name":"mobile-battery"
+			    }
+			  ]
+			}
+
+			PUT hnak_category/_doc/8
+			{
+			  "code" : "tv",
+			  "name":"tv",
+			  "parents": [
+			   
+			    {
+			      "code" : "electronics",
+			      "name":"electronics",
+			      "level":0
+			    }],
+			  "children": [
+			    {
+			      "code" : "smart-tv",
+			      "name":"smart-tv"
+			    },
+			    {
+			      "code" : "lcd",
+			      "name":"lcd"
+			    }
+			  ]
+			}
+
+			PUT hnak_category/_doc/9
+			{
+			  "code": "smart-tv",
+			  "name": "smart-tv",
+			  "parents": [
+			     {
+			      "code" : "electronics",
+			      "name":"electronics",
+			      "level":0
+			    },
+			     {
+			      "code" : "tv",
+			      "name":"tv",
+			      "level":1
+			    }
+			  ]
+			}
+
+			PUT hnak_category/_doc/10
+			{
+			  "code": "lcd",
+			  "name": "lcd",
+			  "parents": [
+			     {
+			      "code" : "electronics",
+			      "name":"electronics",
+			      "level":0
+			    },
+			     {
+			      "code" : "tv",
+			      "name":"tv",
+			      "level":1
+			    }
+			  ]
+			}
+
+			PUT hnak_category/_doc/11
+			{
+			  "code": "mobile-accessories",
+			  "name": "mobile-accessories",
+			  "parents": [
+			     {
+			      "code" : "electronics",
+			      "name":"electronics",
+			      "level":0
+			    },
+			     {
+			      "code" : "mobile",
+			      "name":"mobile",
+			      "level":1
+			    }
+			  ]
+			}
+
+			PUT hnak_category/_doc/11
+			{
+			  "code": "mobile-battery",
+			  "name": "mobile-battery",
+			  "parents": [
+			     {
+			      "code" : "electronics",
+			      "name":"electronics",
+			      "level":0
+			    },
+			     {
+			      "code" : "mobile",
+			      "name":"mobile",
+			      "level":1
+			    }
+			  ]
+			}
+
+
+
+	

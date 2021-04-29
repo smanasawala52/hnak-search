@@ -1,0 +1,204 @@
+http://brunozrk.github.io/building-faceted-search-with-elasticsearch-for-e-commerce-part-4/
+
+GET hnak_product/_search
+{
+  "query": {
+    "bool": {
+      "filter": [
+        {
+          "nested": {
+            "path": "keyword_facets",
+            "query": {
+              "bool": {
+                "should": [
+                  {
+                    "term": {
+                      "keyword_facets.cat": {
+                        "value": "mobiles"
+                      }
+                    }
+                  },
+                  {
+                    "term": {
+                      "keyword_facets.cat": {
+                        "value": "mobiles-acc"
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "aggs": {
+    "all_aggs": {
+      "filter": {
+        "bool": {
+          "filter": [
+            {
+              "nested": {
+                "path": "keyword_facets",
+                "query": {
+                  "bool": {
+                    "filter": [
+                      {
+                        "term": {
+                          "keyword_facets.code": "color"
+                        }
+                      },
+                      {
+                        "bool": {
+                          "should": [
+                            {
+                              "term": {
+                                "keyword_facets.value": "blue"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            },
+            {
+              "nested": {
+                "path": "keyword_facets",
+                "query": {
+                  "bool": {
+                    "filter": [
+                      {
+                        "term": {
+                          "keyword_facets.code": "size"
+                        }
+                      },
+                      {
+                        "bool": {
+                          "should": [
+                            {
+                              "term": {
+                                "keyword_facets.value": "S"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "aggs": {
+        "nested1": {
+          "nested": {
+            "path": "keyword_facets"
+          },
+          "aggs": {
+            "cats_name": {
+              "terms": {
+                "field": "keyword_facets.cat",
+                "size": 10
+              },
+              "aggs": {
+                "facet_name": {
+                  "terms": {
+                    "field": "keyword_facets.code",
+                    "size": 10
+                  },
+                  "aggs": {
+                    "facet_value": {
+                      "terms": {
+                        "field": "keyword_facets.value"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "all_size": {
+      "filter": {
+        "bool": {
+          "filter": [
+            {
+              "nested": {
+                "path": "keyword_facets",
+                "query": {
+                  "bool": {
+                    "filter": [
+                      {
+                        "term": {
+                          "keyword_facets.code": "color"
+                        }
+                      },
+                      {
+                        "bool": {
+                          "should": [
+                            {
+                              "term": {
+                                "keyword_facets.value": "blue"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "aggs": {
+        "nested1": {
+          "nested": {
+            "path": "keyword_facets"
+          },
+          "aggs": {
+            "filter_selected": {
+              "filter": {
+                "term": {
+                  "keyword_facets.code": "size"
+                }
+              },
+              "aggs": {
+                "cats_name": {
+                  "terms": {
+                    "field": "keyword_facets.cat",
+                    "size": 10
+                  },
+                  "aggs": {
+                    "facet_name": {
+                      "terms": {
+                        "field": "keyword_facets.code",
+                        "size": 10
+                      },
+                      "aggs": {
+                        "facet_value": {
+                          "terms": {
+                            "field": "keyword_facets.value"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+  }
+}

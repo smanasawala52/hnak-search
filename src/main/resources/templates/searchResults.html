@@ -1,0 +1,191 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+   <head>
+      <title>Getting Started: Serving Web Content</title>
+      <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+      <script
+         src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+   </head>
+   <script type="text/javascript">
+      $(document).ready(
+      		function() {
+		      $("#suggestions").hide();
+      			$("input").keypress(
+      					function() {
+      						$("#suggestions").empty();
+      						if ($("input").val().length > 0) {
+      							$.get("/auto?q="
+      									+ $("input").val(), function(data,
+      									status) {
+      								$.each(data.suggestions, function(key,
+      										value) {
+      									$("#suggestions").show();
+      									$("#suggestions").append(
+      											'<li>' + value + '</li>');
+      								});
+      								//$("span").text(data.suggestions);
+      							});
+      						}
+      
+      					});
+      		});
+   </script>
+   <body>
+      <form action="/search">
+         <table>
+            <tr>
+               <td>Search</td>
+               <td rowspan="2"><input id="searchBarId" type="text" name="id" th:value="${name}"></td>
+               <td><input type="submit" /></td>
+            </tr>
+         </table>
+      </form>
+      <br>
+      <ul id="suggestions">Suggestions
+      </ul>
+      <br>
+      <table style="width: 1000px" border="1">
+         <tr align="left" valign="top">
+            <td  align="left" valign="top">
+               <th:block th:if="${searchResults.categoryUIModal != null && searchResults.categoryUIModal.currentCat != null}">
+                  Category
+                  <table style="width: 200px" border="1">
+                     <tr th:each="parent, parentStatus : ${searchResults.categoryUIModal.parent}">
+                        <td>
+                           <div>&lt;<a th:href="${parent.url}"><span th:utext="${parent.name}" ></span></a></div>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td th:utext="${searchResults.categoryUIModal.currentCat.name}" />
+                     </tr>
+                     <tr th:each="children, childrenStatus : ${searchResults.categoryUIModal.children}">
+                        <td>
+                           <div>&gt;&gt;<a th:href="${children.url}"><span th:utext="${children.name}" ></span></a></div>
+                        </td>
+                     </tr>
+                  </table>
+                  <br>
+               </th:block>
+               <th:block th:unless="${#lists.isEmpty(searchResults.selectedAttributes)}">
+                  Selected
+                  <table style="width: 200px" border="1">
+                     <th:block th:each="attribute : ${searchResults.selectedAttributes}">
+                        <tr>
+                           <td th:text="${attribute.name}"></td>
+                           <td>
+                              <table  border="0">
+                                 <th:block th:each="filter : ${attribute.values}">
+                                    <tr>
+                                       <td ><input type="checkbox" class="search-checkbox" th:value="${filter.pathToNavigate}" name="active" th:checked="${filter.selected}" /></td>
+                                       <td th:text="${filter.name}"></td>
+                                       <td th:text="${filter.count}">Count</td>
+                                       <!-- <td th:text="${filter.selected}? 'Selected' : ''"></td>
+                                          <td th:text="${filter.pathToNavigate}"></td> -->
+                                    </tr>
+                                 </th:block>
+                              </table>
+                           </td>
+                        </tr>
+                     </th:block>
+                  </table>
+                  <br>
+               </th:block>
+               <th:block th:unless="${#lists.isEmpty(searchResults.attributes)}">
+                  Navigations
+                  <table style="width: 200px" border="1">
+                     <th:block th:each="attribute : ${searchResults.attributes}">
+                        <tr>
+                           <td th:text="${attribute.name}"></td>
+                           <td>
+                              <table  border="0">
+                                 <th:block th:each="filter : ${attribute.values}">
+                                    <tr>
+                                       <td ><input type="checkbox" class="search-checkbox" th:value="${filter.pathToNavigate}" name="active" th:checked="${filter.selected}" /></td>
+                                       <td th:text="${filter.name}"></td>
+                                       <td th:text="${filter.count}">Count</td>
+                                       <!--  <td th:text="${filter.selected}? 'Selected' : ''"></td> 
+                                          <td th:text="${filter.pathToNavigate}"></td>-->
+                                    </tr>
+                                 </th:block>
+                              </table>
+                           </td>
+                        </tr>
+                     </th:block>
+                  </table>
+               </th:block>
+            </td>
+            <td  align="left" valign="top">
+               <th:block th:unless="${#lists.isEmpty(searchResults.products)}">
+            Sort By: 
+            <select name="sort" id="sort" class="search-sort">
+            <option value="1-1" th:selected="${searchResults.sortString=='1-1'}">A-Z</option>
+            <option value="1-2" th:selected="${searchResults.sortString=='1-2'}">Z-A</option>
+            <option value="2-1" th:selected="${searchResults.sortString=='2-1'}">Price Low-High</option>
+            <option value="2-2" th:selected="${searchResults.sortString=='2-2'}">Price High-Low</option>
+            <option value="3-2" th:selected="${searchResults.sortString=='3-2'}">Newest first</option>
+            </select>
+            <br>
+                  Products: Total result: <span th:text="${searchResults.totalResults}"></span>
+                  <table style="width: 800px" border="1">
+                     <th:block th:each="product, state : ${searchResults.products}">
+                        <tr >
+                           <!-- <td  th:if="${state.count%3==0}"></td> --> 
+                           <td>
+                              <a th:href="${product.url}" >
+                              <img th:src="${product.imagePath}" width="100px" height="100px"/><br>
+                              <span th:text="${product.name}"></span>
+                              </a>
+                              <div>Code: <span th:text="${product.code}" ></span></div>
+                              <div>Price: <span th:text="${product.price}" ></span></div>
+                           </td>
+                        </tr>
+                     </th:block>
+                  </table>
+                  <br>
+                  <th:block th:if="${searchResults.pagination!=null}">
+                  	<th:block th:if="${searchResults.pagination.totalPage>1}">
+	                  	Page: <th:block th:uText="${searchResults.pagination.currentPage}" /> of <th:block th:uText="${searchResults.pagination.totalPage}" />&nbsp;
+	                  	<th:block th:if="${searchResults.pagination.firstPage> 0}">
+	                  		<a href="" onclick="return false;" class="search-page" th:value="${searchResults.pagination.firstPage}">&lt;&lt;</a>&nbsp;
+	                  	</th:block>
+	                  	<th:block th:if="${searchResults.pagination.prevPage> 0}">
+	                  		<a href="" onclick="return false;" class="search-page"  th:value="${searchResults.pagination.prevPage}"><th:block th:uText="${searchResults.pagination.prevPage}" /></a>&nbsp;
+	                  	</th:block>
+	                  	<th:block th:uText="${searchResults.pagination.currentPage}" />&nbsp;
+	                  	<th:block th:if="${searchResults.pagination.nextPage> 0}">
+	                  	<a href="" onclick="return false;" class="search-page"  th:value="${searchResults.pagination.nextPage}"><th:block th:uText="${searchResults.pagination.nextPage}" /></a>&nbsp;
+	                  	</th:block>
+	                  	<th:block th:if="${searchResults.pagination.lastPage> 0}">
+	                  	<a href="" onclick="return false;" class="search-page" th:value="${searchResults.pagination.lastPage}">&gt;&gt;</a>&nbsp;
+	                  	</th:block>
+                  	</th:block>
+                  	<th:block th:if="${searchResults.pagination.totalPage<=1}">
+                  		Page: 1 of 1
+                  	</th:block>
+                  </th:block>
+               </th:block>
+               <th:block th:if="${#lists.isEmpty(searchResults.products)}">
+                  No Search Results Found.
+               </th:block>
+            </td>
+         </tr>
+      </table>
+      <input type="hidden" name="path" id="path" th:value="${searchResults.path}"/>
+      <input type="hidden" name="ps" id="ps" th:value="${searchResults.pagination.pageSize}"/>
+      <script>
+         $(document).ready(function() {
+            $('.search-checkbox').change(function() {
+              window.location.href=      $(this).prop("value");
+            });
+            $('.search-sort').change(function() {
+            	var url  =$("#path").val()+"&sort="+   $(this).prop("value")
+                window.location.href=   url;
+              });
+            $('.search-page').click(function() {
+            	var url  =$("#path").val()+"&sort="+   $('#sort').prop("value")+"&ps="+$("#ps").val()+"&cp="+   $(this).attr("value");
+               	window.location.href= url;
+              });
+         });
+      </script>
+   </body>
+</html>
