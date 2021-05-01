@@ -130,7 +130,7 @@ public class SearchFacade {
 
         SearchResponseModal searchResponseModal = new SearchResponseModal();
         try {
-            if (requestModal.getLang() == null || requestModal.getLang().isBlank())
+           // if (requestModal.getLang() == null || requestModal.getLang().isBlank())
                 requestModal.setLang("en");
 
             List<Callable<String>> callableTasks = new ArrayList<>();
@@ -259,7 +259,7 @@ public class SearchFacade {
         if (sortModal == null)
             return null;
 
-        if (sortModal.getDirection() != null && !sortModal.getDirection().isBlank()) {
+        if (sortModal.getDirection() != null ) {
             if (sortModal.getDirection().trim().toUpperCase().equalsIgnoreCase("ASC"))
                 order = SortOrder.ASC;
             else if (sortModal.getDirection().trim().toUpperCase().equalsIgnoreCase("DESC"))
@@ -313,13 +313,13 @@ public class SearchFacade {
             fields.put(fullText, Float.valueOf(1));
             fields.put(fullTextEdge, Float.valueOf(1));
 
-            mainQuery.must(QueryBuilders.nestedQuery(searchPath,
-                    QueryBuilders.multiMatchQuery(requestModal.getQ().toLowerCase().trim(),
-                            fields.keySet().toArray(String[]::new))
-                            .fields(fields)
-                            .operator(Operator.AND)
-                            .type(MultiMatchQueryBuilder.Type.CROSS_FIELDS),
-                    ScoreMode.Avg));
+            // mainQuery.must(QueryBuilders.nestedQuery(searchPath,
+                    // QueryBuilders.multiMatchQuery(requestModal.getQ().toLowerCase().trim(),
+                            // fields.keySet().toArray(String[]::new))
+                            // .fields(fields)
+                            // .operator(Operator.AND)
+                            // .type(MultiMatchQueryBuilder.Type.CROSS_FIELDS),
+                    // ScoreMode.Avg));
             mainQuery.should(QueryBuilders.matchQuery("name", requestModal.getQ().toLowerCase().trim())
                     .operator(Operator.AND).boost(1));
         }
